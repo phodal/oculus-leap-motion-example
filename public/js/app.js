@@ -22,21 +22,21 @@ Leap.loop({background: true}, {
         hand: function (hand) {
             hand.fingers.forEach(function (finger) {
                 // This is the meat of the example - Positioning `the cylinders on every frame:
-                finger.data('boneMeshes').forEach(function (mesh, i) {
+                finger.data('boneMeshes').forEach(function(mesh, i){
                     var bone = finger.bones[i];
                     mesh.position.fromArray(bone.center());
                     mesh.setRotationFromMatrix(
-                        (new THREE.Matrix4).fromArray(bone.matrix())
+                        (new THREE.Matrix4).fromArray( bone.matrix() )
                     );
                     mesh.quaternion.multiply(baseBoneRotation);
                 });
-                finger.data('jointMeshes').forEach(function (mesh, i) {
+                finger.data('jointMeshes').forEach(function(mesh, i){
                     var bone = finger.bones[i];
                     if (bone) {
                         mesh.position.fromArray(bone.prevJoint);
-                    } else {
+                    }else{
                         // special case for the finger tip joint sphere:
-                        bone = finger.bones[i - 1];
+                        bone = finger.bones[i-1];
                         mesh.position.fromArray(bone.nextJoint);
                     }
                 });
@@ -44,24 +44,23 @@ Leap.loop({background: true}, {
             var armMesh = hand.data('armMesh');
             armMesh.position.fromArray(hand.arm.center());
             armMesh.setRotationFromMatrix(
-                (new THREE.Matrix4).fromArray(hand.arm.matrix())
+                (new THREE.Matrix4).fromArray( hand.arm.matrix() )
             );
             armMesh.quaternion.multiply(baseBoneRotation);
             armMesh.scale.x = hand.arm.width / 2;
             armMesh.scale.z = hand.arm.width / 4;
             renderer.render(scene, camera);
-        }
-    })
+        }})
     // these two LeapJS plugins, handHold and handEntry are available from leapjs-plugins, included above.
     // handHold provides hand.data
     // handEntry provides handFound/handLost events.
     .use('handHold')
     .use('handEntry')
-    .on('handFound', function (hand) {
+    .on('handFound', function(hand){
         hand.fingers.forEach(function (finger) {
             var boneMeshes = [];
             var jointMeshes = [];
-            finger.bones.forEach(function (bone) {
+            finger.bones.forEach(function(bone) {
                 // create joints
                 // CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded)
                 var boneMesh = new THREE.Mesh(
@@ -84,7 +83,7 @@ Leap.loop({background: true}, {
             finger.data('boneMeshes', boneMeshes);
             finger.data('jointMeshes', jointMeshes);
         });
-        if (hand.arm) { // 2.0.3+ have arm api,
+        if (hand.arm){ // 2.0.3+ have arm api,
             // CylinderGeometry(radiusTop, radiusBottom, height, radiusSegments, heightSegments, openEnded)
             var armMesh = new THREE.Mesh(
                 new THREE.CylinderGeometry(1, 1, hand.arm.length, 64),
@@ -95,14 +94,14 @@ Leap.loop({background: true}, {
             hand.data('armMesh', armMesh);
         }
     })
-    .on('handLost', function (hand) {
+    .on('handLost', function(hand){
         hand.fingers.forEach(function (finger) {
             var boneMeshes = finger.data('boneMeshes');
             var jointMeshes = finger.data('jointMeshes');
-            boneMeshes.forEach(function (mesh) {
+            boneMeshes.forEach(function(mesh){
                 scene.remove(mesh);
             });
-            jointMeshes.forEach(function (mesh) {
+            jointMeshes.forEach(function(mesh){
                 scene.remove(mesh);
             });
             finger.data({
@@ -113,7 +112,6 @@ Leap.loop({background: true}, {
         var armMesh = hand.data('armMesh');
         scene.remove(armMesh);
         hand.data('armMesh', null);
-        renderer.render(scene, camera);
     })
     .connect();
 
@@ -212,8 +210,8 @@ function init() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    //effect = new THREE.OculusRiftEffect(renderer, { worldScale: 100 });
-    //effect.setSize(window.innerWidth, window.innerHeight);
+    effect = new THREE.OculusRiftEffect(renderer, { worldScale: 100 });
+    effect.setSize(window.innerWidth, window.innerHeight);
 
     container.innerHTML = "";
     container.appendChild(renderer.domElement);
@@ -230,7 +228,7 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
-    //effect.setSize(window.innerWidth, window.innerHeight);
+    effect.setSize(window.innerWidth, window.innerHeight);
 }
 
 function generateHeight(width, height) {
@@ -257,11 +255,10 @@ function animate() {
 }
 function render() {
     oculusControl.update(clock.getDelta());
-    //THREE.AnimationHandler.update( clock.getDelta() * 100 );
 
     camera.useQuaternion = true;
     camera.matrixWorldNeedsUpdate = true;
 
-    //effect.render(scene, camera);
+    effect.render(scene, camera);
     renderer.render(scene, camera);
 }
